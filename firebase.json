@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site":"andrew-petty-cash",
     "public": "dist",
     "ignore": [
       "firebase.json",
