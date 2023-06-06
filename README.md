@@ -1,4 +1,4 @@
-# petty-cash-2
+# petty-cash
 
 This template should help get you started developing with Vue 3 in Vite.
 
@@ -11,6 +11,18 @@ This template should help get you started developing with Vue 3 in Vite.
 See [Vite Configuration Reference](https://vitejs.dev/config/).
 
 ## Project Setup
+
+### Create Firebase Project at [Firebase Console](https://console.firebase.google.com)
+
+### Make environment Variables 
+
+```sh
+cp env.example .env
+```
+
+### Enter Your Firebase credentials in .env file
+
+### Install Node Modules
 
 ```sh
 npm install

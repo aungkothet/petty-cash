@@ -35,6 +35,16 @@
               >Add Monthly Usages</router-link
             >
           </li>
+          <li class="nav-item" v-if="userData.email == adminMail">
+            <router-link to="/my-usage" class="nav-link"
+              >My Monthly Usages</router-link
+            >
+          </li>
+          <li class="nav-item" v-if="userData.email == adminMail">
+            <router-link to="/add-my-usage" class="nav-link"
+              >Add My Monthly Usages</router-link
+            >
+          </li>
           <li class="nav-item" v-if="userData">
             <span @click="logout" class="nav-link">Log Out</span>
           </li>

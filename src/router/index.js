@@ -3,7 +3,9 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import AddStatement from '../views/AddStatement.vue'
 import MonthlyUsage from '../views/MonthlyUsage.vue'
+import MyMonthlyUsage from '../views/MyMonthlyUsage.vue'
 import AddUsage from '../views/AddUsage.vue'
+import AddMyUsage from '../views/AddMyUsage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +34,16 @@ const router = createRouter({
       path: '/add-usage',
       name: 'add-usage',
       component: AddUsage
+    },
+    {
+      path: '/my-usage',
+      name: 'my-usage',
+      component: MyMonthlyUsage
+    },
+    {
+      path: '/add-my-usage',
+      name: 'add-my-usage',
+      component: AddMyUsage
     },
   ]
 })

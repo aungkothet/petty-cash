@@ -1,7 +1,7 @@
 <script>
   import { auth, db } from '../firebase/init.js'
   import { onAuthStateChanged } from 'firebase/auth'
-  import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
+  import { collection, query, orderBy, onSnapshot, addDoc } from 'firebase/firestore'
 
   export default {
     data: () => ({
@@ -19,17 +19,33 @@
       })
     },
     methods: {
+      addToMonthlyUsage() {
+        let refId = new Date(this.date).getTime() + ''
+        addDoc(collection(db, 'monthly-usage', refId, 'detail'), {
+          desc: "Ko's အသုံး",
+          amount: +this.total,
+          date: this.date,
+        })
+          .then((docRef) => {
+            console.log(docRef)
+            alert('Document has been added successfully')
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+      },
+
       queryData() {
-        this.detail = []
         let refId = new Date(this.date).getTime() + ''
         let dateUsage = new Date(this.date).toLocaleString('default', {
           month: 'long',
           year: 'numeric',
         })
+        console.log(refId)
         this.title = dateUsage + ' Usage'
         const statementsQuery = query(
-          collection(db, 'monthly-usage', refId, 'detail'),
-          orderBy('amount', 'asc')
+          collection(db, 'my-usage', refId, 'detail'),
+          orderBy('date', 'asc')
         )
         onSnapshot(statementsQuery, (snapshot) => {
           if (!snapshot.empty) {
@@ -53,7 +69,7 @@
     <div class="row">
       <div class="col-lg-8 col-md-8 col-sm-12 mx-auto">
         <div class="card">
-          <h1 class="text-center mb-4">Monthly Usages</h1>
+          <h1 class="text-center mb-4">My Monthly Usages</h1>
           <div class="row justify-content-center g-3">
             <div class="col-auto">
               <div class="input-group">
@@ -78,25 +94,37 @@
             <table class="table table-striped table-hover table-responsive">
               <thead>
                 <tr>
+                  <th>Date</th>
                   <th>Description</th>
                   <th class="text-end">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(usage, index) in detail" :key="index">
+                  <td>
+                    {{
+                      new Date(usage.date).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })
+                    }}
+                  </td>
                   <td>{{ usage.desc }}</td>
                   <td class="text-end">{{ usage.amount.toLocaleString() }}</td>
                 </tr>
                 <tr>
                   <td>&nbsp;</td>
                   <td>&nbsp;</td>
+                  <td>&nbsp;</td>
                 </tr>
                 <tr>
-                  <td class="text-center">Total</td>
+                  <td class="text-center" colspan="2">Total</td>
                   <td class="text-end">{{ total.toLocaleString() }}</td>
                 </tr>
               </tbody>
             </table>
+            <button class="btn btn-md btn-primary" @click="addToMonthlyUsage">Add To Monthly Usage</button>
           </div>
           <h2 v-if="error" class="text-danger my-2">{{ error }}</h2>
         </div>
