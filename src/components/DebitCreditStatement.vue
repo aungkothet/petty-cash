@@ -17,9 +17,12 @@
 
   export default {
     data: () => ({
-        id:1
+      id: 1,
+      uid: null,
     }),
     mounted() {
+      var localUser = JSON.parse(window.localStorage.getItem('localUser'))
+      this.uid = localUser.email
       this.loadStatements()
     },
     methods: {
@@ -32,7 +35,7 @@
         var creditAmount = 0
         var debitAmount = 0
         const creditStatementsQuery = query(
-          collection(db, 'petty-cash'),
+          collection(db, 'petty-cash', this.uid, 'petty-cash'),
           where('date', '>=', firstDay),
           where('date', '<', lastDay)
         )
@@ -66,15 +69,18 @@
       },
       loadStatements() {
         const statementsQuery = query(
-          collection(db, 'petty-cash'),
+          collection(db, 'petty-cash', this.uid, 'petty-cash'),
           orderBy('date', 'asc')
         )
         onSnapshot(statementsQuery, (snapshot) => {
           snapshot.docChanges().forEach((change) => {
             var data = change.doc.data()
+            console.log(data)
             let str = data.date.toDate() + ''
             var msg =
-              '<tr><td>' + (this.id++) +'</td><td>'+
+              '<tr><td>' +
+              this.id++ +
+              '</td><td>' +
               str.substring(4).substring(0, 11).replaceAll(' ', '-') +
               '</td><td>' +
               data.desc +
@@ -105,7 +111,7 @@
     >
       <thead>
         <tr>
-            <th>#</th>
+          <th>#</th>
           <th>Date</th>
           <th>Description</th>
           <th class="text-end">Credit</th>
@@ -115,7 +121,11 @@
       <tbody></tbody>
     </table>
     <div class="row justify-content-between mt-1">
-      <button type="button" @click="queryData" class="btn btn-primary col-md-3 col">
+      <button
+        type="button"
+        @click="queryData"
+        class="btn btn-primary col-md-3 col"
+      >
         Calculate Remaining
       </button>
     </div>

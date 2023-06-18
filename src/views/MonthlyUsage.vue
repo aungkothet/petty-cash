@@ -1,7 +1,13 @@
 <script>
-  import { auth, db } from '../firebase/init.js'
-  import { onAuthStateChanged } from 'firebase/auth'
-  import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
+  import { db } from '../firebase/init.js'
+  import {
+    collection,
+    query,
+    orderBy,
+    onSnapshot,
+    deleteDoc,
+    doc,
+  } from 'firebase/firestore'
 
   export default {
     data: () => ({
@@ -11,33 +17,63 @@
       error: null,
       title: null,
     }),
-    mounted() {
-      onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          this.$router.push({ path: '/login' })
-        }
-      })
-    },
     methods: {
+      checkData(desc) {
+        let date = new Date()
+        let thisMonth = new Date(
+          date.getFullYear(),
+          date.getMonth(),
+          1,
+          6,
+          30
+        ).getTime()
+        return (
+          desc == "Ko's အသုံး" && thisMonth == new Date(this.date).getTime()
+        )
+      },
+      deleteData(path) {
+        let a = path.split('/')
+        deleteDoc(
+          doc(db, 'petty-cash', a[1], 'monthly-usage', a[3], 'detail', a[5])
+        )
+          .then(() => {
+            console.log('Document successfully deleted!')
+          })
+          .catch((error) => {
+            console.error('Error removing document: ', error)
+          })
+      },
       queryData() {
         this.detail = []
+        var localUser = JSON.parse(window.localStorage.getItem('localUser'))
+
         let refId = new Date(this.date).getTime() + ''
         let dateUsage = new Date(this.date).toLocaleString('default', {
-          month: 'long',
           year: 'numeric',
+          month: 'numeric',
         })
         this.title = dateUsage + ' Usage'
         const statementsQuery = query(
-          collection(db, 'monthly-usage', refId, 'detail'),
+          collection(
+            db,
+            'petty-cash',
+            localUser.email,
+            'monthly-usage',
+            refId,
+            'detail'
+          ),
           orderBy('amount', 'asc')
         )
         onSnapshot(statementsQuery, (snapshot) => {
           if (!snapshot.empty) {
             this.error = null
             snapshot.docChanges().forEach((change) => {
-              var data = change.doc.data()
-              this.detail.push(data)
-              this.total += data.amount
+              if (change.type != 'removed') {
+                var data = change.doc.data()
+                data.path = change.doc.ref.path
+                this.detail.push(data)
+                this.total += data.amount
+              }
             })
           } else {
             this.error = 'No data found for ' + this.title
@@ -84,7 +120,15 @@
               </thead>
               <tbody>
                 <tr v-for="(usage, index) in detail" :key="index">
-                  <td>{{ usage.desc }}</td>
+                  <td>
+                    {{ usage.desc
+                    }}<span
+                      class="text-danger"
+                      v-if="checkData(usage.desc)"
+                      @click="deleteData(usage.path)"
+                      >(Delete)</span
+                    >
+                  </td>
                   <td class="text-end">{{ usage.amount.toLocaleString() }}</td>
                 </tr>
                 <tr>

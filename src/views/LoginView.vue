@@ -1,26 +1,23 @@
 <script>
   import { auth } from '../firebase/init.js'
-  import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
+  import { signInWithEmailAndPassword } from 'firebase/auth'
   export default {
     data: () => ({
       email: import.meta.env.VITE_GUEST_MAIL,
       password: import.meta.env.VITE_GUEST_PASSWORD,
     }),
-    components: {},
-    mounted() {
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          this.$router.push({ path: '/' })
-        }
-      })
-    },
     methods: {
       login() {
         signInWithEmailAndPassword(auth, this.email, this.password)
           .then((userCredential) => {
-            console.log(userCredential)
+            window.localStorage.setItem(
+              'localUser',
+              JSON.stringify(userCredential.user)
+            )
+            this.$router.push({ name: 'home'})
           })
           .catch((error) => {
+            window.localStorage.removeItem('localUser')
             console.log(error)
           })
       },

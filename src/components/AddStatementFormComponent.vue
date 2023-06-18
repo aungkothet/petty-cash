@@ -1,9 +1,6 @@
 <script>
   import { db } from '../firebase/init.js'
-  import {
-    collection,
-    addDoc,
-  } from 'firebase/firestore'
+  import { collection, addDoc } from 'firebase/firestore'
 
   export default {
     data: () => ({
@@ -12,10 +9,10 @@
       type: 'C',
       amount: 0,
     }),
-    mounted() {},
     methods: {
       addStatement() {
-        addDoc(collection(db, 'petty-cash'), {
+        var localUser = JSON.parse(window.localStorage.getItem('localUser'))
+        addDoc(collection(db, 'petty-cash', localUser.email, 'petty-cash'), {
           desc: this.desc,
           date: new Date(this.date),
           type: this.type,

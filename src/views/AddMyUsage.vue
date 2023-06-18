@@ -1,6 +1,5 @@
 <script>
-  import { auth, db } from '../firebase/init.js'
-  import { onAuthStateChanged } from 'firebase/auth'
+  import { db } from '../firebase/init.js'
   import { collection, addDoc } from 'firebase/firestore'
   export default {
     data: () => ({
@@ -8,17 +7,12 @@
       desc: null,
       amount: 0,
     }),
-    mounted() {
-      onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          this.$router.push({ path: '/login' })
-        }
-      })
-    },
     methods: {
       addUsage() {
+        var localUser = JSON.parse(window.localStorage.getItem('localUser'))
+        
         let refId = new Date(this.date.substring(0,7)).getTime() + ''
-        addDoc(collection(db, 'my-usage', refId, 'detail'), {
+        addDoc(collection(db, 'petty-cash', localUser.email, 'my-usage', refId, 'detail'), {
           desc: this.desc,
           amount: +this.amount,
           date: this.date,

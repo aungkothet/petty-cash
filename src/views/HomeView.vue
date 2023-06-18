@@ -1,20 +1,8 @@
 <script>
-  import { auth } from '../firebase/init.js'
-  import { onAuthStateChanged } from 'firebase/auth'
   import DebitCreditStatement from '../components/DebitCreditStatement.vue'
   export default {
-    data: () => ({
-      statements: [],
-    }),
     components: {
       DebitCreditStatement,
-    },
-    mounted() {
-      onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          this.$router.push({ path: '/login' })
-        }
-      })
     },
   }
 </script>

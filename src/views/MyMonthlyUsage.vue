@@ -1,7 +1,13 @@
 <script>
-  import { auth, db } from '../firebase/init.js'
-  import { onAuthStateChanged } from 'firebase/auth'
-  import { collection, query, orderBy, onSnapshot, addDoc } from 'firebase/firestore'
+  import { db } from '../firebase/init.js'
+  import {
+    collection,
+    query,
+    orderBy,
+    onSnapshot,
+    where,
+    addDoc,
+  } from 'firebase/firestore'
 
   export default {
     data: () => ({
@@ -11,21 +17,26 @@
       error: null,
       title: null,
     }),
-    mounted() {
-      onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          this.$router.push({ path: '/login' })
-        }
-      })
-    },
+
     methods: {
       addToMonthlyUsage() {
+        var localUser = JSON.parse(window.localStorage.getItem('localUser'))
         let refId = new Date(this.date).getTime() + ''
-        addDoc(collection(db, 'monthly-usage', refId, 'detail'), {
-          desc: "Ko's အသုံး",
-          amount: +this.total,
-          date: this.date,
-        })
+        addDoc(
+          collection(
+            db,
+            'petty-cash',
+            localUser.email,
+            'monthly-usage',
+            refId,
+            'detail'
+          ),
+          {
+            desc: "Ko's အသုံး",
+            amount: +this.total,
+            date: this.date,
+          }
+        )
           .then((docRef) => {
             console.log(docRef)
             alert('Document has been added successfully')
@@ -36,15 +47,23 @@
       },
 
       queryData() {
+        var localUser = JSON.parse(window.localStorage.getItem('localUser'))
+
         let refId = new Date(this.date).getTime() + ''
         let dateUsage = new Date(this.date).toLocaleString('default', {
           month: 'long',
           year: 'numeric',
         })
-        console.log(refId)
         this.title = dateUsage + ' Usage'
         const statementsQuery = query(
-          collection(db, 'my-usage', refId, 'detail'),
+          collection(
+            db,
+            'petty-cash',
+            localUser.email,
+            'my-usage',
+            refId,
+            'detail'
+          ),
           orderBy('date', 'asc')
         )
         onSnapshot(statementsQuery, (snapshot) => {
@@ -124,7 +143,9 @@
                 </tr>
               </tbody>
             </table>
-            <button class="btn btn-md btn-primary" @click="addToMonthlyUsage">Add To Monthly Usage</button>
+            <button class="btn btn-md btn-primary" @click="addToMonthlyUsage">
+              Add To Monthly Usage
+            </button>
           </div>
           <h2 v-if="error" class="text-danger my-2">{{ error }}</h2>
         </div>

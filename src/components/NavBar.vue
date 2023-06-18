@@ -73,6 +73,8 @@
         signOut(auth)
           .then(() => {
             console.log('Sign Out Success')
+            window.localStorage.removeItem('localUser')
+            this.$router.push({ path: '/login'})
           })
           .catch((error) => {
             // An error happened.
